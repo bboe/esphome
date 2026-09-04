@@ -9,8 +9,11 @@ namespace esphome::event {
 template<typename... Ts> class TriggerEventAction final : public Action<Ts...>, public Parented<Event> {
  public:
   TEMPLATABLE_VALUE(std::string, event_type)
+  TEMPLATABLE_VALUE(uint32_t, multi_press_count)
 
-  void play(const Ts &...x) override { this->parent_->trigger(this->event_type_.value(x...)); }
+  void play(const Ts &...x) override {
+    this->parent_->trigger(this->event_type_.value(x...), this->multi_press_count_.value(x...));
+  }
 };
 
 class EventTrigger final : public Trigger<StringRef> {

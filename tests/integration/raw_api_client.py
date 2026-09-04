@@ -1,7 +1,9 @@
 """Minimal plaintext native-api client over a raw socket.
 
 Reads only when told to, so tests control when the TCP pipe backs up toward
-the device; payloads are skipped and only message types are counted.
+the device; payloads are skipped and only message types are counted, unless a
+test opts into ``capture_frames`` -- a test that reads a large listing would
+otherwise hold every byte of it.
 """
 
 from __future__ import annotations
@@ -57,8 +59,11 @@ def encode_frame(msg_type: int, payload: bytes) -> bytes:
 class FrameParser:
     """Incremental parser for the plaintext api frame stream."""
 
-    def __init__(self) -> None:
+    def __init__(self, capture: bool = False) -> None:
         self._buf = bytearray()
+        self._capture = capture
+        # (message type, payload) of every frame seen, when capturing
+        self.frames: list[tuple[int, bytes]] = []
 
     def feed(self, data: bytes) -> list[int]:
         self._buf.extend(data)
@@ -80,6 +85,8 @@ class FrameParser:
         msg_type, pos = type_decoded
         if len(buf) - pos < size:
             return None
+        if self._capture:
+            self.frames.append((msg_type, bytes(buf[pos : pos + size])))
         del buf[: pos + size]
         return msg_type
 
@@ -87,9 +94,14 @@ class FrameParser:
 class RawApiClient:
     """Plaintext api client whose reads happen only on request."""
 
-    def __init__(self, port: int, recv_buffer_size: int | None = None) -> None:
+    def __init__(
+        self,
+        port: int,
+        recv_buffer_size: int | None = None,
+        capture_frames: bool = False,
+    ) -> None:
         self._port = port
-        self._parser = FrameParser()
+        self._parser = FrameParser(capture=capture_frames)
         self.bytes_received = 0
         self.frame_counts: Counter[int] = Counter()
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -131,18 +143,25 @@ class RawApiClient:
             encode_frame(MESSAGE_TYPE_OF[type(msg)], msg.SerializeToString()),
         )
 
-    async def read_until_frame(self, msg_type: int, timeout: float = 10.0) -> None:
-        """Read until at least one frame of msg_type has been received."""
+    async def read_until_frame(
+        self, msg_type: int, timeout: float = 10.0, count: int = 1
+    ) -> None:
+        """Read until at least `count` frames of msg_type have been received."""
         loop = asyncio.get_running_loop()
 
         async def _read_loop() -> None:
-            while not self.frame_counts[msg_type]:
+            while self.frame_counts[msg_type] < count:
                 data = await loop.sock_recv(self._sock, _READ_CHUNK)
                 assert data, "server closed the connection unexpectedly"
                 self.bytes_received += len(data)
                 self.frame_counts.update(self._parser.feed(data))
 
         await asyncio.wait_for(_read_loop(), timeout)
+
+    @property
+    def frames(self) -> list[tuple[int, bytes]]:
+        """(message type, payload) of every frame read, empty unless capturing."""
+        return self._parser.frames
 
     def close(self) -> None:
         self._sock.close()

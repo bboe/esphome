@@ -2935,11 +2935,12 @@ class ListEntitiesEventResponse final : public InfoResponseProtoMessage {
 class EventResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 108;
-  static constexpr uint8_t ESTIMATED_SIZE = 18;
+  static constexpr uint8_t ESTIMATED_SIZE = 22;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("event_response"); }
 #endif
   StringRef event_type{};
+  uint32_t multi_press_count{0};
   uint8_t *encode(ProtoWriteBuffer &buffer PROTO_ENCODE_DEBUG_PARAM) const;
   uint32_t calculate_size() const;
 #ifdef HAS_PROTO_MESSAGE_DUMP

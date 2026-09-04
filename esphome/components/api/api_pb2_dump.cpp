@@ -2536,6 +2536,7 @@ const char *EventResponse::dump_to(DumpBuffer &out) const {
 #ifdef USE_DEVICES
   dump_field(out, ESPHOME_PSTR("device_id"), this->device_id);
 #endif
+  dump_field(out, ESPHOME_PSTR("multi_press_count"), this->multi_press_count);
   return out.c_str();
 }
 #endif

@@ -1503,6 +1503,11 @@ uint16_t APIConnection::try_send_event_response(event::Event *event, StringRef e
                                                 uint32_t remaining_size) {
   EventResponse resp;
   resp.event_type = event_type;
+  // The event type of a deferred response is carried by the batch item, but the multi-press count is
+  // read from the entity here: a second trigger before the batch flushes would report its count with
+  // the earlier event type. Events bypass batching (see should_send_immediately_) unless the TCP
+  // buffer is full, and a batch item costs 8 bytes today with no spare byte to hold this in.
+  resp.multi_press_count = event->get_last_multi_press_count();
   return fill_and_encode_entity_state(event, resp, conn, remaining_size);
 }
 

@@ -1,0 +1,31 @@
+esphome:
+  name: api-event-attributes-test
+
+host:
+
+api:
+  batch_delay: 0ms
+
+logger:
+
+event:
+  - platform: template
+    name: Action Button
+    id: action_button
+    event_types:
+      - press_start
+      - multi_press_end
+
+interval:
+  # Both events on every tick, so a client that subscribes at any moment sees
+  # one of each within two ticks.
+  - interval: 100ms
+    then:
+      - event.trigger:
+          id: action_button
+          event_type: multi_press_end
+          multi_press_count: 3
+      # No attribute: the field must be absent from this one's payload.
+      - event.trigger:
+          id: action_button
+          event_type: press_start

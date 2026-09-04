@@ -2451,6 +2451,18 @@ message EventResponse {
   fixed32 key = 1 [(force) = true];
   string event_type = 2;
   uint32 device_id = 3 [(field_ifdef) = "USE_DEVICES"];
+
+  // Event attributes. Home Assistant's EventEntity accepts a dict of attributes
+  // alongside the event type; the button event standard
+  // (home-assistant/architecture#1377) defines exactly one, multi_press_count,
+  // and specifies it as an int. Each standard attribute gets its own typed
+  // field here rather than a string key/value map, so the type survives the
+  // wire instead of being recovered by a cast on the far end.
+  //
+  // A press count is 1 or more, so 0 means "not sent": a client older than this
+  // field decodes nothing and a device older than it encodes nothing, and both
+  // read as absent. Only the multi_press_* event types carry it.
+  uint32 multi_press_count = 4;
 }
 
 // ==================== VALVE ====================

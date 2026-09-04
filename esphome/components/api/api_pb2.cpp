@@ -3626,6 +3626,7 @@ uint8_t *EventResponse::encode(ProtoWriteBuffer &buffer PROTO_ENCODE_DEBUG_PARAM
 #ifdef USE_DEVICES
   ProtoEncode::encode_uint32(pos PROTO_ENCODE_DEBUG_ARG, 3, this->device_id);
 #endif
+  ProtoEncode::encode_uint32(pos PROTO_ENCODE_DEBUG_ARG, 4, this->multi_press_count);
   return pos;
 }
 uint32_t EventResponse::calculate_size() const {
@@ -3635,6 +3636,7 @@ uint32_t EventResponse::calculate_size() const {
 #ifdef USE_DEVICES
   size += ProtoSize::calc_uint32(1, this->device_id);
 #endif
+  size += ProtoSize::calc_uint32(1, this->multi_press_count);
   return size;
 }
 #endif

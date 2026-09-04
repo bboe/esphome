@@ -5,6 +5,7 @@ event:
     event_types:
       - template_event_type1
       - template_event_type2
+      - multi_press_end
     on_event:
       - logger.log: Event fired
       - lambda: |-
@@ -18,3 +19,20 @@ event:
             // Log using %.*s format for StringRef
             ESP_LOGD("test", "Event type: %.*s", (int) event_type.size(), event_type.c_str());
           }
+
+script:
+  - id: fire_multi_press
+    then:
+      # multi_press_count is the one attribute of Home Assistant's button event
+      # standard; a literal and a lambda take different codegen paths.
+      - event.trigger:
+          id: some_event
+          event_type: multi_press_end
+          multi_press_count: 3
+      - event.trigger:
+          id: some_event
+          event_type: multi_press_end
+          multi_press_count: !lambda "return id(some_event).get_last_multi_press_count() + 1;"
+      - event.trigger:
+          id: some_event
+          event_type: template_event_type1

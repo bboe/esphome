@@ -1,0 +1,26 @@
+esphome:
+  name: test
+  on_boot:
+    then:
+      - event.trigger:
+          id: test_event
+          event_type: multi_press_end
+          multi_press_count: 3
+      - event.trigger:
+          id: test_event
+          event_type: multi_press_ongoing
+          multi_press_count: !lambda "return 2;"
+      - event.trigger:
+          id: test_event
+          event_type: press_start
+
+host:
+
+event:
+  - platform: template
+    name: "Test Event"
+    id: test_event
+    event_types:
+      - press_start
+      - multi_press_ongoing
+      - multi_press_end

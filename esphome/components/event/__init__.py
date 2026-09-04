@@ -127,10 +127,18 @@ async def new_event(config: ConfigType, *, event_types: list[str]) -> MockObj:
     return var
 
 
+# Attribute of Home Assistant's button event standard (home-assistant/architecture#1377),
+# carried by the multi_press_* event types. Only this component uses it, so it is not in
+# const.py.
+CONF_MULTI_PRESS_COUNT = "multi_press_count"
+
 TRIGGER_EVENT_SCHEMA = cv.Schema(
     {
         cv.Required(CONF_ID): cv.use_id(Event),
         cv.Required(CONF_EVENT_TYPE): cv.templatable(cv.string_strict),
+        cv.Optional(CONF_MULTI_PRESS_COUNT): cv.templatable(
+            cv.int_range(min=1, max=255)
+        ),
     }
 )
 
@@ -148,6 +156,9 @@ async def event_fire_to_code(
     await cg.register_parented(var, config[CONF_ID])
     templ = await cg.templatable(config[CONF_EVENT_TYPE], args, cg.std_string)
     cg.add(var.set_event_type(templ))
+    if (count := config.get(CONF_MULTI_PRESS_COUNT)) is not None:
+        templ = await cg.templatable(count, args, cg.uint32)
+        cg.add(var.set_multi_press_count(templ))
     return var
 
 

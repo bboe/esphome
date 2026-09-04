@@ -7,7 +7,7 @@ namespace esphome::event {
 
 static const char *const TAG = "event";
 
-void Event::trigger(const std::string &event_type) {
+void Event::trigger(const std::string &event_type, uint32_t multi_press_count) {
   // Linear search with strcmp - faster than std::set for small datasets (1-5 items typical)
   const char *found = nullptr;
   for (const char *type : this->types_) {
@@ -21,6 +21,8 @@ void Event::trigger(const std::string &event_type) {
     return;
   }
   this->last_event_type_ = found;
+  this->last_multi_press_count_ =
+      static_cast<uint8_t>(std::min<uint32_t>(multi_press_count, std::numeric_limits<uint8_t>::max()));
   ESP_LOGV(TAG, "'%s' >> '%s'", this->get_name().c_str(), this->last_event_type_);
   this->event_callback_.call(StringRef(found));
 #if defined(USE_EVENT) && defined(USE_CONTROLLER_REGISTRY)

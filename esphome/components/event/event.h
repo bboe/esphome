@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstring>
 #include <limits>
 #include <string>
@@ -21,7 +22,10 @@ namespace esphome::event {
 
 class Event : public EntityBase {
  public:
-  void trigger(const std::string &event_type);
+  /// Trigger the event. multi_press_count is the "amount of presses" attribute of Home Assistant's
+  /// button event standard and belongs to the multi_press_* event types only; 0 means the event
+  /// carries no count and nothing is put on the wire for it. Counts are clamped to 255.
+  void trigger(const std::string &event_type, uint32_t multi_press_count = 0);
 
   /// Set the event types supported by this event (from initializer list).
   void set_event_types(std::initializer_list<const char *> event_types) {
@@ -65,6 +69,9 @@ class Event : public EntityBase {
   /// Check if an event has been triggered.
   bool has_event() const { return this->last_event_type_ != nullptr; }
 
+  /// Return the multi-press count of the last triggered event, or 0 if it carried none.
+  uint8_t get_last_multi_press_count() const { return this->last_multi_press_count_; }
+
   template<typename F> void add_on_event_callback(F &&callback) {
     this->event_callback_.add(std::forward<F>(callback));
   }
@@ -77,6 +84,8 @@ class Event : public EntityBase {
   /// Last triggered event type - must point to entry in types_ to ensure valid lifetime.
   /// Set by trigger() after validation, reset to nullptr when types_ changes.
   const char *last_event_type_{nullptr};
+  /// Multi-press count of the last triggered event; 0 when it carried none.
+  uint8_t last_multi_press_count_{0};
 };
 
 }  // namespace esphome::event
