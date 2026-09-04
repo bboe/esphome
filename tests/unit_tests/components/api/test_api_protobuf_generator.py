@@ -15,9 +15,11 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parents[4] / "script" / "api_protobuf"))
 
+import aioesphomeapi.api_options_pb2 as pb  # noqa: E402
 from api_protobuf import (  # noqa: E402
     MAX_MESSAGE_ID,
     _make_ifdef_line,
+    calculate_message_estimated_size,
     get_varint64_ifdef,
     validate_message_id,
 )
@@ -107,3 +109,50 @@ def test_message_id_at_maximum_is_accepted() -> None:
 def test_message_id_above_maximum_is_rejected() -> None:
     with pytest.raises(ValueError, match="exceeds the plaintext"):
         validate_message_id(MAX_MESSAGE_ID + 1, "TooBigMessage")
+
+
+def _message_with_fields(
+    *fields: tuple[str, int, str | None],
+) -> descriptor_pb2.DescriptorProto:
+    """Build a DescriptorProto from (field_name, field_type, field_ifdef) entries."""
+    msg = descriptor_pb2.DescriptorProto(name="Msg")
+    for number, (name, field_type, ifdef) in enumerate(fields, start=1):
+        field = msg.field.add(name=name, number=number, type=field_type)
+        if ifdef is not None:
+            field.options.Extensions[pb.field_ifdef] = ifdef
+    return msg
+
+
+def test_estimated_size_counts_unguarded_fields_in_the_base() -> None:
+    msg = _message_with_fields(("a", UINT32, None), ("b", UINT32, None))
+    base, conditional = calculate_message_estimated_size(msg)
+    assert base > 0
+    assert not conditional
+
+
+def test_estimated_size_keeps_a_guarded_field_out_of_the_base() -> None:
+    # The regression this pins: a field the build compiled out was still
+    # counted, so every device paid for every optional field in the message.
+    plain = _message_with_fields(("a", UINT32, None))
+    guarded = _message_with_fields(("a", UINT32, None), ("b", UINT32, "USE_X"))
+
+    plain_base, _ = calculate_message_estimated_size(plain)
+    base, conditional = calculate_message_estimated_size(guarded)
+
+    assert base == plain_base
+    assert conditional == {"USE_X": 4}
+
+
+def test_estimated_size_sums_fields_sharing_one_guard() -> None:
+    msg = _message_with_fields(
+        ("a", UINT32, "USE_X"), ("b", UINT32, "USE_X"), ("c", UINT32, "USE_Y")
+    )
+    base, conditional = calculate_message_estimated_size(msg)
+    assert base == 0
+    assert conditional == {"USE_X": 8, "USE_Y": 4}
+
+
+def test_estimated_size_ignores_deprecated_guarded_fields() -> None:
+    msg = _message_with_fields(("a", UINT32, "USE_X"))
+    msg.field[0].options.deprecated = True
+    assert calculate_message_estimated_size(msg) == (0, {})

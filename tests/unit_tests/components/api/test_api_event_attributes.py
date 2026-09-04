@@ -42,9 +42,31 @@ def _strip_comments(text: str) -> str:
 PROTO_RAW = (API_DIR / "api.proto").read_text(encoding="utf-8")
 PROTO_TEXT = _strip_comments(PROTO_RAW)
 CPP_TEXT = _strip_comments((API_DIR / "api_pb2.cpp").read_text(encoding="utf-8"))
+HEADER_TEXT = _strip_comments((API_DIR / "api_pb2.h").read_text(encoding="utf-8"))
 API_CONNECTION_TEXT = _strip_comments(
     (API_DIR / "api_connection.cpp").read_text(encoding="utf-8")
 )
+
+
+def _estimated_size(message: str, defines: set[str]) -> int:
+    """Evaluate one message's ESTIMATED_SIZE the way the preprocessor would."""
+    match = re.search(
+        rf"\nclass {re.escape(message)} final.*?ESTIMATED_SIZE = (.*?);",
+        HEADER_TEXT,
+        re.DOTALL,
+    )
+    assert match is not None, f"could not find {message}::ESTIMATED_SIZE in api_pb2.h"
+    total = 0
+    guard: str | None = None
+    for line in match.group(1).splitlines():
+        line = line.strip()
+        if line.startswith("#ifdef "):
+            guard = line.split()[1]
+        elif line == "#endif":
+            guard = None
+        elif line and (guard is None or guard in defines):
+            total += int(line.lstrip("+ "))
+    return total
 
 
 def _proto_message(name: str) -> str:
@@ -138,3 +160,18 @@ def test_the_device_reads_the_values_from_the_entity() -> None:
     assert "event->get_attribute_states()" in API_CONNECTION_TEXT
     assert "event->get_attributes()" in API_CONNECTION_TEXT
     assert "event->get_attribute_count()" in API_CONNECTION_TEXT
+
+
+def test_a_build_without_attributes_pays_nothing_for_them() -> None:
+    """ESTIMATED_SIZE reserves the send buffer and rides in every batch item.
+
+    The field is compiled out without ``USE_EVENT_ATTRIBUTES``, so counting it
+    unconditionally would charge every device for a feature it does not have.
+    18 and 67 are what these messages estimated before the field existed.
+    """
+    off = {"USE_DEVICES", "USE_ENTITY_ICON"}
+    on = off | {"USE_EVENT_ATTRIBUTES"}
+    assert _estimated_size("EventResponse", off) == 18
+    assert _estimated_size("ListEntitiesEventResponse", off) == 67
+    assert _estimated_size("EventResponse", on) > 18
+    assert _estimated_size("ListEntitiesEventResponse", on) > 67

@@ -557,7 +557,38 @@ class SerialProxyInfo final : public ProtoMessage {
 class DeviceInfoResponse final : public ProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 10;
-  static constexpr uint16_t ESTIMATED_SIZE = 312;
+  static constexpr uint16_t ESTIMATED_SIZE = 63
+#ifdef USE_DEEP_SLEEP
+                                             + 2
+#endif
+#ifdef ESPHOME_PROJECT_NAME
+                                             + 18
+#endif
+#ifdef USE_WEBSERVER
+                                             + 4
+#endif
+#ifdef USE_BLUETOOTH_PROXY
+                                             + 14
+#endif
+#ifdef USE_VOICE_ASSISTANT
+                                             + 5
+#endif
+#ifdef USE_AREAS
+                                             + 82
+#endif
+#ifdef USE_API_NOISE
+                                             + 6
+#endif
+#ifdef USE_DEVICES
+                                             + 54
+#endif
+#ifdef USE_ZWAVE_PROXY
+                                             + 10
+#endif
+#ifdef USE_SERIAL_PROXY
+                                             + 54
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("device_info_response"); }
 #endif
@@ -668,7 +699,20 @@ class ZWaveProxyCapabilities final : public ProtoMessage {
 class DeviceCapabilitiesResponse final : public ProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 150;
-  static constexpr uint8_t ESTIMATED_SIZE = 102;
+  static constexpr uint8_t ESTIMATED_SIZE = 0
+#ifdef USE_BLUETOOTH_PROXY
+                                            + 17
+#endif
+#ifdef USE_VOICE_ASSISTANT
+                                            + 17
+#endif
+#ifdef USE_ZWAVE_PROXY
+                                            + 17
+#endif
+#ifdef USE_SERIAL_PROXY
+                                            + 51
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("device_capabilities_response"); }
 #endif
@@ -709,7 +753,14 @@ class ListEntitiesDoneResponse final : public ProtoMessage {
 class ListEntitiesBinarySensorResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 12;
-  static constexpr uint8_t ESTIMATED_SIZE = 51;
+  static constexpr uint8_t ESTIMATED_SIZE = 38
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_binary_sensor_response"); }
 #endif
@@ -726,7 +777,11 @@ class ListEntitiesBinarySensorResponse final : public InfoResponseProtoMessage {
 class BinarySensorStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 21;
-  static constexpr uint8_t ESTIMATED_SIZE = 13;
+  static constexpr uint8_t ESTIMATED_SIZE = 9
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("binary_sensor_state_response"); }
 #endif
@@ -745,7 +800,14 @@ class BinarySensorStateResponse final : public StateResponseProtoMessage {
 class ListEntitiesCoverResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 13;
-  static constexpr uint8_t ESTIMATED_SIZE = 57;
+  static constexpr uint8_t ESTIMATED_SIZE = 44
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_cover_response"); }
 #endif
@@ -765,7 +827,11 @@ class ListEntitiesCoverResponse final : public InfoResponseProtoMessage {
 class CoverStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 22;
-  static constexpr uint8_t ESTIMATED_SIZE = 21;
+  static constexpr uint8_t ESTIMATED_SIZE = 17
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("cover_state_response"); }
 #endif
@@ -783,7 +849,11 @@ class CoverStateResponse final : public StateResponseProtoMessage {
 class CoverCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 30;
-  static constexpr uint8_t ESTIMATED_SIZE = 25;
+  static constexpr uint8_t ESTIMATED_SIZE = 21
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("cover_command_request"); }
 #endif
@@ -805,7 +875,14 @@ class CoverCommandRequest final : public CommandProtoMessage {
 class ListEntitiesFanResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 14;
-  static constexpr uint8_t ESTIMATED_SIZE = 68;
+  static constexpr uint8_t ESTIMATED_SIZE = 55
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_fan_response"); }
 #endif
@@ -825,7 +902,11 @@ class ListEntitiesFanResponse final : public InfoResponseProtoMessage {
 class FanStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 23;
-  static constexpr uint8_t ESTIMATED_SIZE = 28;
+  static constexpr uint8_t ESTIMATED_SIZE = 24
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("fan_state_response"); }
 #endif
@@ -845,7 +926,11 @@ class FanStateResponse final : public StateResponseProtoMessage {
 class FanCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 31;
-  static constexpr uint8_t ESTIMATED_SIZE = 38;
+  static constexpr uint8_t ESTIMATED_SIZE = 34
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("fan_command_request"); }
 #endif
@@ -873,7 +958,14 @@ class FanCommandRequest final : public CommandProtoMessage {
 class ListEntitiesLightResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 15;
-  static constexpr uint8_t ESTIMATED_SIZE = 73;
+  static constexpr uint8_t ESTIMATED_SIZE = 59
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 5
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_light_response"); }
 #endif
@@ -892,7 +984,11 @@ class ListEntitiesLightResponse final : public InfoResponseProtoMessage {
 class LightStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 24;
-  static constexpr uint8_t ESTIMATED_SIZE = 67;
+  static constexpr uint8_t ESTIMATED_SIZE = 63
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("light_state_response"); }
 #endif
@@ -919,7 +1015,11 @@ class LightStateResponse final : public StateResponseProtoMessage {
 class LightCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 32;
-  static constexpr uint8_t ESTIMATED_SIZE = 112;
+  static constexpr uint8_t ESTIMATED_SIZE = 107
+#ifdef USE_DEVICES
+                                            + 5
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("light_command_request"); }
 #endif
@@ -963,7 +1063,14 @@ class LightCommandRequest final : public CommandProtoMessage {
 class ListEntitiesSensorResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 16;
-  static constexpr uint8_t ESTIMATED_SIZE = 66;
+  static constexpr uint8_t ESTIMATED_SIZE = 53
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_sensor_response"); }
 #endif
@@ -983,7 +1090,11 @@ class ListEntitiesSensorResponse final : public InfoResponseProtoMessage {
 class SensorStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 25;
-  static constexpr uint8_t ESTIMATED_SIZE = 16;
+  static constexpr uint8_t ESTIMATED_SIZE = 12
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("sensor_state_response"); }
 #endif
@@ -1002,7 +1113,14 @@ class SensorStateResponse final : public StateResponseProtoMessage {
 class ListEntitiesSwitchResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 17;
-  static constexpr uint8_t ESTIMATED_SIZE = 51;
+  static constexpr uint8_t ESTIMATED_SIZE = 38
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_switch_response"); }
 #endif
@@ -1019,7 +1137,11 @@ class ListEntitiesSwitchResponse final : public InfoResponseProtoMessage {
 class SwitchStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 26;
-  static constexpr uint8_t ESTIMATED_SIZE = 11;
+  static constexpr uint8_t ESTIMATED_SIZE = 7
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("switch_state_response"); }
 #endif
@@ -1035,7 +1157,11 @@ class SwitchStateResponse final : public StateResponseProtoMessage {
 class SwitchCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 33;
-  static constexpr uint8_t ESTIMATED_SIZE = 11;
+  static constexpr uint8_t ESTIMATED_SIZE = 7
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("switch_command_request"); }
 #endif
@@ -1053,7 +1179,14 @@ class SwitchCommandRequest final : public CommandProtoMessage {
 class ListEntitiesTextSensorResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 18;
-  static constexpr uint8_t ESTIMATED_SIZE = 49;
+  static constexpr uint8_t ESTIMATED_SIZE = 36
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_text_sensor_response"); }
 #endif
@@ -1069,7 +1202,11 @@ class ListEntitiesTextSensorResponse final : public InfoResponseProtoMessage {
 class TextSensorStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 27;
-  static constexpr uint8_t ESTIMATED_SIZE = 20;
+  static constexpr uint8_t ESTIMATED_SIZE = 16
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("text_sensor_state_response"); }
 #endif
@@ -1172,7 +1309,14 @@ class HomeassistantServiceMap final : public ProtoMessage {
 class HomeassistantActionRequest final : public ProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 35;
-  static constexpr uint8_t ESTIMATED_SIZE = 128;
+  static constexpr uint8_t ESTIMATED_SIZE = 113
+#ifdef USE_API_HOMEASSISTANT_ACTION_RESPONSES
+                                            + 4
+#endif
+#ifdef USE_API_HOMEASSISTANT_ACTION_RESPONSES_JSON
+                                            + 11
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("homeassistant_action_request"); }
 #endif
@@ -1203,7 +1347,11 @@ class HomeassistantActionRequest final : public ProtoMessage {
 class HomeassistantActionResponse final : public ProtoDecodableMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 130;
-  static constexpr uint8_t ESTIMATED_SIZE = 34;
+  static constexpr uint8_t ESTIMATED_SIZE = 15
+#ifdef USE_API_HOMEASSISTANT_ACTION_RESPONSES_JSON
+                                            + 19
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("homeassistant_action_response"); }
 #endif
@@ -1342,7 +1490,11 @@ class ListEntitiesServicesArgument final : public ProtoMessage {
 class ListEntitiesServicesResponse final : public ProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 41;
-  static constexpr uint8_t ESTIMATED_SIZE = 59;
+  static constexpr uint8_t ESTIMATED_SIZE = 50
+#ifdef USE_API_USER_DEFINED_ACTION_METADATA
+                                            + 9
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_services_response"); }
 #endif
@@ -1385,7 +1537,11 @@ class ExecuteServiceArgument final : public ProtoDecodableMessage {
 class ExecuteServiceRequest final : public ProtoDecodableMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 42;
-  static constexpr uint8_t ESTIMATED_SIZE = 45;
+  static constexpr uint8_t ESTIMATED_SIZE = 39
+#ifdef USE_API_USER_DEFINED_ACTION_RESPONSES
+                                            + 6
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("execute_service_request"); }
 #endif
@@ -1412,7 +1568,11 @@ class ExecuteServiceRequest final : public ProtoDecodableMessage {
 class ExecuteServiceResponse final : public ProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 131;
-  static constexpr uint8_t ESTIMATED_SIZE = 34;
+  static constexpr uint8_t ESTIMATED_SIZE = 15
+#ifdef USE_API_USER_DEFINED_ACTION_RESPONSES_JSON
+                                            + 19
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("execute_service_response"); }
 #endif
@@ -1436,7 +1596,14 @@ class ExecuteServiceResponse final : public ProtoMessage {
 class ListEntitiesCameraResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 43;
-  static constexpr uint8_t ESTIMATED_SIZE = 40;
+  static constexpr uint8_t ESTIMATED_SIZE = 27
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_camera_response"); }
 #endif
@@ -1451,7 +1618,11 @@ class ListEntitiesCameraResponse final : public InfoResponseProtoMessage {
 class CameraImageResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 44;
-  static constexpr uint8_t ESTIMATED_SIZE = 30;
+  static constexpr uint8_t ESTIMATED_SIZE = 26
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("camera_image_response"); }
 #endif
@@ -1491,7 +1662,14 @@ class CameraImageRequest final : public ProtoDecodableMessage {
 class ListEntitiesClimateResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 46;
-  static constexpr uint8_t ESTIMATED_SIZE = 153;
+  static constexpr uint8_t ESTIMATED_SIZE = 138
+#ifdef USE_ENTITY_ICON
+                                            + 10
+#endif
+#ifdef USE_DEVICES
+                                            + 5
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_climate_response"); }
 #endif
@@ -1525,7 +1703,11 @@ class ListEntitiesClimateResponse final : public InfoResponseProtoMessage {
 class ClimateStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 47;
-  static constexpr uint8_t ESTIMATED_SIZE = 68;
+  static constexpr uint8_t ESTIMATED_SIZE = 63
+#ifdef USE_DEVICES
+                                            + 5
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("climate_state_response"); }
 #endif
@@ -1553,7 +1735,11 @@ class ClimateStateResponse final : public StateResponseProtoMessage {
 class ClimateCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 48;
-  static constexpr uint8_t ESTIMATED_SIZE = 84;
+  static constexpr uint8_t ESTIMATED_SIZE = 79
+#ifdef USE_DEVICES
+                                            + 5
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("climate_command_request"); }
 #endif
@@ -1591,7 +1777,14 @@ class ClimateCommandRequest final : public CommandProtoMessage {
 class ListEntitiesWaterHeaterResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 132;
-  static constexpr uint8_t ESTIMATED_SIZE = 65;
+  static constexpr uint8_t ESTIMATED_SIZE = 52
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_water_heater_response"); }
 #endif
@@ -1612,7 +1805,11 @@ class ListEntitiesWaterHeaterResponse final : public InfoResponseProtoMessage {
 class WaterHeaterStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 133;
-  static constexpr uint8_t ESTIMATED_SIZE = 35;
+  static constexpr uint8_t ESTIMATED_SIZE = 31
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("water_heater_state_response"); }
 #endif
@@ -1633,7 +1830,11 @@ class WaterHeaterStateResponse final : public StateResponseProtoMessage {
 class WaterHeaterCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 134;
-  static constexpr uint8_t ESTIMATED_SIZE = 34;
+  static constexpr uint8_t ESTIMATED_SIZE = 30
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("water_heater_command_request"); }
 #endif
@@ -1656,7 +1857,14 @@ class WaterHeaterCommandRequest final : public CommandProtoMessage {
 class ListEntitiesNumberResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 49;
-  static constexpr uint8_t ESTIMATED_SIZE = 75;
+  static constexpr uint8_t ESTIMATED_SIZE = 62
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_number_response"); }
 #endif
@@ -1677,7 +1885,11 @@ class ListEntitiesNumberResponse final : public InfoResponseProtoMessage {
 class NumberStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 50;
-  static constexpr uint8_t ESTIMATED_SIZE = 16;
+  static constexpr uint8_t ESTIMATED_SIZE = 12
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("number_state_response"); }
 #endif
@@ -1694,7 +1906,11 @@ class NumberStateResponse final : public StateResponseProtoMessage {
 class NumberCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 51;
-  static constexpr uint8_t ESTIMATED_SIZE = 14;
+  static constexpr uint8_t ESTIMATED_SIZE = 10
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("number_command_request"); }
 #endif
@@ -1712,7 +1928,14 @@ class NumberCommandRequest final : public CommandProtoMessage {
 class ListEntitiesSelectResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 52;
-  static constexpr uint8_t ESTIMATED_SIZE = 58;
+  static constexpr uint8_t ESTIMATED_SIZE = 45
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_select_response"); }
 #endif
@@ -1728,7 +1951,11 @@ class ListEntitiesSelectResponse final : public InfoResponseProtoMessage {
 class SelectStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 53;
-  static constexpr uint8_t ESTIMATED_SIZE = 20;
+  static constexpr uint8_t ESTIMATED_SIZE = 16
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("select_state_response"); }
 #endif
@@ -1745,7 +1972,11 @@ class SelectStateResponse final : public StateResponseProtoMessage {
 class SelectCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 54;
-  static constexpr uint8_t ESTIMATED_SIZE = 18;
+  static constexpr uint8_t ESTIMATED_SIZE = 14
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("select_command_request"); }
 #endif
@@ -1764,7 +1995,14 @@ class SelectCommandRequest final : public CommandProtoMessage {
 class ListEntitiesSirenResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 55;
-  static constexpr uint8_t ESTIMATED_SIZE = 62;
+  static constexpr uint8_t ESTIMATED_SIZE = 49
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_siren_response"); }
 #endif
@@ -1782,7 +2020,11 @@ class ListEntitiesSirenResponse final : public InfoResponseProtoMessage {
 class SirenStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 56;
-  static constexpr uint8_t ESTIMATED_SIZE = 11;
+  static constexpr uint8_t ESTIMATED_SIZE = 7
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("siren_state_response"); }
 #endif
@@ -1798,7 +2040,11 @@ class SirenStateResponse final : public StateResponseProtoMessage {
 class SirenCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 57;
-  static constexpr uint8_t ESTIMATED_SIZE = 37;
+  static constexpr uint8_t ESTIMATED_SIZE = 33
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("siren_command_request"); }
 #endif
@@ -1824,7 +2070,14 @@ class SirenCommandRequest final : public CommandProtoMessage {
 class ListEntitiesLockResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 58;
-  static constexpr uint8_t ESTIMATED_SIZE = 55;
+  static constexpr uint8_t ESTIMATED_SIZE = 42
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_lock_response"); }
 #endif
@@ -1843,7 +2096,11 @@ class ListEntitiesLockResponse final : public InfoResponseProtoMessage {
 class LockStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 59;
-  static constexpr uint8_t ESTIMATED_SIZE = 11;
+  static constexpr uint8_t ESTIMATED_SIZE = 7
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("lock_state_response"); }
 #endif
@@ -1859,7 +2116,11 @@ class LockStateResponse final : public StateResponseProtoMessage {
 class LockCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 60;
-  static constexpr uint8_t ESTIMATED_SIZE = 22;
+  static constexpr uint8_t ESTIMATED_SIZE = 18
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("lock_command_request"); }
 #endif
@@ -1880,7 +2141,14 @@ class LockCommandRequest final : public CommandProtoMessage {
 class ListEntitiesButtonResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 61;
-  static constexpr uint8_t ESTIMATED_SIZE = 49;
+  static constexpr uint8_t ESTIMATED_SIZE = 36
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_button_response"); }
 #endif
@@ -1896,7 +2164,11 @@ class ListEntitiesButtonResponse final : public InfoResponseProtoMessage {
 class ButtonCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 62;
-  static constexpr uint8_t ESTIMATED_SIZE = 9;
+  static constexpr uint8_t ESTIMATED_SIZE = 5
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("button_command_request"); }
 #endif
@@ -1928,7 +2200,14 @@ class MediaPlayerSupportedFormat final : public ProtoMessage {
 class ListEntitiesMediaPlayerResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 63;
-  static constexpr uint8_t ESTIMATED_SIZE = 78;
+  static constexpr uint8_t ESTIMATED_SIZE = 65
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_media_player_response"); }
 #endif
@@ -1945,7 +2224,11 @@ class ListEntitiesMediaPlayerResponse final : public InfoResponseProtoMessage {
 class MediaPlayerStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 64;
-  static constexpr uint8_t ESTIMATED_SIZE = 18;
+  static constexpr uint8_t ESTIMATED_SIZE = 14
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("media_player_state_response"); }
 #endif
@@ -1963,7 +2246,11 @@ class MediaPlayerStateResponse final : public StateResponseProtoMessage {
 class MediaPlayerCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 65;
-  static constexpr uint8_t ESTIMATED_SIZE = 35;
+  static constexpr uint8_t ESTIMATED_SIZE = 31
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("media_player_command_request"); }
 #endif
@@ -2709,7 +2996,14 @@ class VoiceAssistantSetConfiguration final : public ProtoDecodableMessage {
 class ListEntitiesAlarmControlPanelResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 94;
-  static constexpr uint8_t ESTIMATED_SIZE = 48;
+  static constexpr uint8_t ESTIMATED_SIZE = 35
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_alarm_control_panel_response"); }
 #endif
@@ -2727,7 +3021,11 @@ class ListEntitiesAlarmControlPanelResponse final : public InfoResponseProtoMess
 class AlarmControlPanelStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 95;
-  static constexpr uint8_t ESTIMATED_SIZE = 11;
+  static constexpr uint8_t ESTIMATED_SIZE = 7
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("alarm_control_panel_state_response"); }
 #endif
@@ -2743,7 +3041,11 @@ class AlarmControlPanelStateResponse final : public StateResponseProtoMessage {
 class AlarmControlPanelCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 96;
-  static constexpr uint8_t ESTIMATED_SIZE = 20;
+  static constexpr uint8_t ESTIMATED_SIZE = 16
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("alarm_control_panel_command_request"); }
 #endif
@@ -2763,7 +3065,14 @@ class AlarmControlPanelCommandRequest final : public CommandProtoMessage {
 class ListEntitiesTextResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 97;
-  static constexpr uint8_t ESTIMATED_SIZE = 59;
+  static constexpr uint8_t ESTIMATED_SIZE = 46
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_text_response"); }
 #endif
@@ -2782,7 +3091,11 @@ class ListEntitiesTextResponse final : public InfoResponseProtoMessage {
 class TextStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 98;
-  static constexpr uint8_t ESTIMATED_SIZE = 20;
+  static constexpr uint8_t ESTIMATED_SIZE = 16
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("text_state_response"); }
 #endif
@@ -2799,7 +3112,11 @@ class TextStateResponse final : public StateResponseProtoMessage {
 class TextCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 99;
-  static constexpr uint8_t ESTIMATED_SIZE = 18;
+  static constexpr uint8_t ESTIMATED_SIZE = 14
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("text_command_request"); }
 #endif
@@ -2818,7 +3135,14 @@ class TextCommandRequest final : public CommandProtoMessage {
 class ListEntitiesDateResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 100;
-  static constexpr uint8_t ESTIMATED_SIZE = 40;
+  static constexpr uint8_t ESTIMATED_SIZE = 27
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_date_response"); }
 #endif
@@ -2833,7 +3157,11 @@ class ListEntitiesDateResponse final : public InfoResponseProtoMessage {
 class DateStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 101;
-  static constexpr uint8_t ESTIMATED_SIZE = 23;
+  static constexpr uint8_t ESTIMATED_SIZE = 19
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("date_state_response"); }
 #endif
@@ -2852,7 +3180,11 @@ class DateStateResponse final : public StateResponseProtoMessage {
 class DateCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 102;
-  static constexpr uint8_t ESTIMATED_SIZE = 21;
+  static constexpr uint8_t ESTIMATED_SIZE = 17
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("date_command_request"); }
 #endif
@@ -2872,7 +3204,14 @@ class DateCommandRequest final : public CommandProtoMessage {
 class ListEntitiesTimeResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 103;
-  static constexpr uint8_t ESTIMATED_SIZE = 40;
+  static constexpr uint8_t ESTIMATED_SIZE = 27
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_time_response"); }
 #endif
@@ -2887,7 +3226,11 @@ class ListEntitiesTimeResponse final : public InfoResponseProtoMessage {
 class TimeStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 104;
-  static constexpr uint8_t ESTIMATED_SIZE = 23;
+  static constexpr uint8_t ESTIMATED_SIZE = 19
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("time_state_response"); }
 #endif
@@ -2906,7 +3249,11 @@ class TimeStateResponse final : public StateResponseProtoMessage {
 class TimeCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 105;
-  static constexpr uint8_t ESTIMATED_SIZE = 21;
+  static constexpr uint8_t ESTIMATED_SIZE = 17
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("time_command_request"); }
 #endif
@@ -2955,7 +3302,17 @@ class EventAttribute final : public ProtoMessage {
 class ListEntitiesEventResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 107;
-  static constexpr uint8_t ESTIMATED_SIZE = 203;
+  static constexpr uint8_t ESTIMATED_SIZE = 54
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+#ifdef USE_EVENT_ATTRIBUTES
+                                            + 136
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_event_response"); }
 #endif
@@ -2976,7 +3333,14 @@ class ListEntitiesEventResponse final : public InfoResponseProtoMessage {
 class EventResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 108;
-  static constexpr uint8_t ESTIMATED_SIZE = 154;
+  static constexpr uint8_t ESTIMATED_SIZE = 14
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+#ifdef USE_EVENT_ATTRIBUTES
+                                            + 136
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("event_response"); }
 #endif
@@ -2998,7 +3362,14 @@ class EventResponse final : public StateResponseProtoMessage {
 class ListEntitiesValveResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 109;
-  static constexpr uint8_t ESTIMATED_SIZE = 55;
+  static constexpr uint8_t ESTIMATED_SIZE = 42
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_valve_response"); }
 #endif
@@ -3017,7 +3388,11 @@ class ListEntitiesValveResponse final : public InfoResponseProtoMessage {
 class ValveStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 110;
-  static constexpr uint8_t ESTIMATED_SIZE = 16;
+  static constexpr uint8_t ESTIMATED_SIZE = 12
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("valve_state_response"); }
 #endif
@@ -3034,7 +3409,11 @@ class ValveStateResponse final : public StateResponseProtoMessage {
 class ValveCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 111;
-  static constexpr uint8_t ESTIMATED_SIZE = 18;
+  static constexpr uint8_t ESTIMATED_SIZE = 14
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("valve_command_request"); }
 #endif
@@ -3054,7 +3433,14 @@ class ValveCommandRequest final : public CommandProtoMessage {
 class ListEntitiesDateTimeResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 112;
-  static constexpr uint8_t ESTIMATED_SIZE = 40;
+  static constexpr uint8_t ESTIMATED_SIZE = 27
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_date_time_response"); }
 #endif
@@ -3069,7 +3455,11 @@ class ListEntitiesDateTimeResponse final : public InfoResponseProtoMessage {
 class DateTimeStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 113;
-  static constexpr uint8_t ESTIMATED_SIZE = 16;
+  static constexpr uint8_t ESTIMATED_SIZE = 12
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("date_time_state_response"); }
 #endif
@@ -3086,7 +3476,11 @@ class DateTimeStateResponse final : public StateResponseProtoMessage {
 class DateTimeCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 114;
-  static constexpr uint8_t ESTIMATED_SIZE = 14;
+  static constexpr uint8_t ESTIMATED_SIZE = 10
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("date_time_command_request"); }
 #endif
@@ -3104,7 +3498,14 @@ class DateTimeCommandRequest final : public CommandProtoMessage {
 class ListEntitiesUpdateResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 116;
-  static constexpr uint8_t ESTIMATED_SIZE = 49;
+  static constexpr uint8_t ESTIMATED_SIZE = 36
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_update_response"); }
 #endif
@@ -3120,7 +3521,11 @@ class ListEntitiesUpdateResponse final : public InfoResponseProtoMessage {
 class UpdateStateResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 117;
-  static constexpr uint8_t ESTIMATED_SIZE = 65;
+  static constexpr uint8_t ESTIMATED_SIZE = 61
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("update_state_response"); }
 #endif
@@ -3144,7 +3549,11 @@ class UpdateStateResponse final : public StateResponseProtoMessage {
 class UpdateCommandRequest final : public CommandProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 118;
-  static constexpr uint8_t ESTIMATED_SIZE = 11;
+  static constexpr uint8_t ESTIMATED_SIZE = 7
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("update_command_request"); }
 #endif
@@ -3219,7 +3628,14 @@ class ZWaveProxyRequestResponse final : public ProtoMessage {
 class ListEntitiesInfraredResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 135;
-  static constexpr uint8_t ESTIMATED_SIZE = 48;
+  static constexpr uint8_t ESTIMATED_SIZE = 35
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_infrared_response"); }
 #endif
@@ -3238,7 +3654,11 @@ class ListEntitiesInfraredResponse final : public InfoResponseProtoMessage {
 class InfraredRFTransmitRawTimingsRequest final : public ProtoDecodableMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 136;
-  static constexpr uint8_t ESTIMATED_SIZE = 224;
+  static constexpr uint8_t ESTIMATED_SIZE = 220
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("infrared_rf_transmit_raw_timings_request"); }
 #endif
@@ -3264,7 +3684,11 @@ class InfraredRFTransmitRawTimingsRequest final : public ProtoDecodableMessage {
 class InfraredRFReceiveEvent final : public ProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 137;
-  static constexpr uint8_t ESTIMATED_SIZE = 17;
+  static constexpr uint8_t ESTIMATED_SIZE = 13
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("infrared_rf_receive_event"); }
 #endif
@@ -3286,7 +3710,14 @@ class InfraredRFReceiveEvent final : public ProtoMessage {
 class ListEntitiesRadioFrequencyResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 148;
-  static constexpr uint8_t ESTIMATED_SIZE = 56;
+  static constexpr uint8_t ESTIMATED_SIZE = 43
+#ifdef USE_ENTITY_ICON
+                                            + 9
+#endif
+#ifdef USE_DEVICES
+                                            + 4
+#endif
+      ;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_radio_frequency_response"); }
 #endif

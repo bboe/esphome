@@ -2492,9 +2492,21 @@ def build_enum_type(desc, enum_ifdef_map) -> tuple[str, str, str]:
     return out, cpp, dump_cpp
 
 
-def calculate_message_estimated_size(desc: descriptor.DescriptorProto) -> int:
-    """Calculate estimated size for a complete message based on typical values."""
-    total_size = 0
+def calculate_message_estimated_size(
+    desc: descriptor.DescriptorProto,
+) -> tuple[int, dict[str, int]]:
+    """Calculate estimated size for a complete message based on typical values.
+
+    A field carrying (field_ifdef) is not compiled into a build without that
+    define, so it cannot contribute to that build's estimate. Its size is
+    returned separately, keyed by the condition, for the caller to emit behind
+    the same guard the field itself is emitted behind.
+
+    Returns (unconditional size, {ifdef condition: size}). The conditional
+    sizes keep field order, so the generated output is deterministic.
+    """
+    base_size = 0
+    conditional_sizes: dict[str, int] = {}
 
     for field in desc.field:
         # Skip deprecated fields
@@ -2502,11 +2514,14 @@ def calculate_message_estimated_size(desc: descriptor.DescriptorProto) -> int:
             continue
 
         ti = create_field_type_info(field)
+        field_size = ti.get_estimated_size()
 
-        # Add estimated size for this field
-        total_size += ti.get_estimated_size()
+        if ifdef := get_field_opt(field, pb.field_ifdef):
+            conditional_sizes[ifdef] = conditional_sizes.get(ifdef, 0) + field_size
+        else:
+            base_size += field_size
 
-    return total_size
+    return base_size, conditional_sizes
 
 
 def calculate_message_max_size(desc: descriptor.DescriptorProto) -> int | None:
@@ -2568,18 +2583,30 @@ def build_message_type(
         public_content.append(f"static constexpr uint16_t MESSAGE_TYPE = {message_id};")
 
         # Add estimated size constant
-        estimated_size = calculate_message_estimated_size(desc)
-        # Use a type appropriate for estimated_size
+        base_size, conditional_sizes = calculate_message_estimated_size(desc)
+        # Use a type appropriate for the largest build, so that the type does
+        # not depend on which defines happen to be set
+        max_size = base_size + sum(conditional_sizes.values())
         estimated_size_type = (
             "uint8_t"
-            if estimated_size <= 255
+            if max_size <= 255
             else "uint16_t"
-            if estimated_size <= 65535
+            if max_size <= 65535
             else "size_t"
         )
-        public_content.append(
-            f"static constexpr {estimated_size_type} ESTIMATED_SIZE = {estimated_size};"
-        )
+        if conditional_sizes:
+            # Guarded fields contribute only where they are compiled in, so the
+            # constant is a sum whose terms carry the fields' own guards
+            public_content.append(
+                f"static constexpr {estimated_size_type} ESTIMATED_SIZE = {base_size}"
+            )
+            for ifdef, size in conditional_sizes.items():
+                public_content.extend(wrap_with_ifdef(f"    + {size}", ifdef))
+            public_content.append("    ;")
+        else:
+            public_content.append(
+                f"static constexpr {estimated_size_type} ESTIMATED_SIZE = {base_size};"
+            )
 
         # Add message_name method inline in header
         public_content.append("#ifdef HAS_PROTO_MESSAGE_DUMP")
