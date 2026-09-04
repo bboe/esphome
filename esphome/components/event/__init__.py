@@ -42,7 +42,64 @@ EventPtr = Event.operator("ptr")
 
 TriggerEventAction = event_ns.class_("TriggerEventAction", automation.Action)
 
+# Only this component and zigbee use the key, so it stays out of const.py.
+CONF_ATTRIBUTES = "attributes"
+
+EventAttributeInfo = event_ns.struct("EventAttributeInfo")
+EventAttributeType = event_ns.enum("EventAttributeType", is_class=True)
+EventAttributeValue = event_ns.struct("EventAttributeValue")
+
+# The type an attribute is declared with, and the enumerator that names it in C++.
+ATTRIBUTE_TYPES = {
+    "int": EventAttributeType.INT,
+    "float": EventAttributeType.FLOAT,
+    "bool": EventAttributeType.BOOL,
+    "string": EventAttributeType.STRING,
+}
+
+# Both API messages hold their attributes in a stack array sized to the largest
+# declaration in the build, so one wasteful entity would widen every event message.
+# Home Assistant's own event standard defines a single attribute; eight is room to
+# spare at 192 bytes of stack for the state message.
+MAX_ATTRIBUTES = 8
+
+_ATTRIBUTE_COUNT_KEY = "event_attribute_count"
+
 validate_device_class = cv.one_of(*DEVICE_CLASSES, lower=True, space="_")
+
+
+def _validate_attribute_name(value: str) -> str:
+    """An attribute name reaches Home Assistant as a key of the event's data dict."""
+    value = cv.string_strict(value)
+    if not value or not value.replace("_", "").isalnum() or not value[0].isalpha():
+        raise cv.Invalid(
+            f"Attribute name '{value}' must start with a letter and contain only "
+            f"letters, digits and underscores"
+        )
+    return value
+
+
+ATTRIBUTES_SCHEMA = cv.All(
+    cv.Schema({_validate_attribute_name: cv.one_of(*ATTRIBUTE_TYPES, lower=True)}),
+    cv.Length(max=MAX_ATTRIBUTES),
+)
+
+
+@coroutine_with_priority(CoroPriority.FINAL)
+async def _emit_attribute_count() -> None:
+    """Emit the array bound once every event entity has declared its attributes."""
+    cg.add_define("USE_EVENT_ATTRIBUTES")
+    cg.add_define("ESPHOME_EVENT_ATTRIBUTE_COUNT", CORE.data[_ATTRIBUTE_COUNT_KEY])
+
+
+def _request_attribute_count(count: int) -> None:
+    previous = CORE.data.get(_ATTRIBUTE_COUNT_KEY)
+    CORE.data[_ATTRIBUTE_COUNT_KEY] = (
+        count if previous is None else max(previous, count)
+    )
+    if previous is None:
+        CORE.add_job(_emit_attribute_count)
+
 
 _EVENT_SCHEMA = (
     cv.ENTITY_BASE_SCHEMA.extend(web_server.WEBSERVER_SORTING_SCHEMA)
@@ -55,6 +112,7 @@ _EVENT_SCHEMA = (
                 CONF_DEVICE_CLASS, visibility=cv.Visibility.ADVANCED
             ): validate_device_class,
             cv.Optional(CONF_ON_EVENT): automation.validate_automation({}),
+            cv.Optional(CONF_ATTRIBUTES): ATTRIBUTES_SCHEMA,
         }
     )
 )
@@ -101,6 +159,28 @@ async def setup_event_core_(
 
     cg.add(var.set_event_types(event_types))
 
+    if attributes := config.get(CONF_ATTRIBUTES):
+        _request_attribute_count(len(attributes))
+        array = cg.static_const_array(
+            ID(
+                f"{config[CONF_ID].id}_attributes",
+                is_declaration=True,
+                type=EventAttributeInfo,
+            ),
+            cg.ArrayInitializer(
+                *(
+                    cg.StructInitializer(
+                        EventAttributeInfo,
+                        ("name", name),
+                        ("type", ATTRIBUTE_TYPES[type_]),
+                    )
+                    for name, type_ in attributes.items()
+                ),
+                multiline=True,
+            ),
+        )
+        cg.add(var.set_attributes(array, len(attributes)))
+
     setup_device_class(config)
 
     if mqtt_id := config.get(CONF_MQTT_ID):
@@ -127,10 +207,20 @@ async def new_event(config: ConfigType, *, event_types: list[str]) -> MockObj:
     return var
 
 
+def _attribute_value(value: object) -> object:
+    """Keep the YAML value's own type: it is what picks the C++ type of the value."""
+    if isinstance(value, (bool, int, float)):
+        return value
+    return cv.string_strict(value)
+
+
 TRIGGER_EVENT_SCHEMA = cv.Schema(
     {
         cv.Required(CONF_ID): cv.use_id(Event),
         cv.Required(CONF_EVENT_TYPE): cv.templatable(cv.string_strict),
+        cv.Optional(CONF_ATTRIBUTES): cv.Schema(
+            {_validate_attribute_name: cv.templatable(_attribute_value)}
+        ),
     }
 )
 
@@ -148,6 +238,16 @@ async def event_fire_to_code(
     await cg.register_parented(var, config[CONF_ID])
     templ = await cg.templatable(config[CONF_EVENT_TYPE], args, cg.std_string)
     cg.add(var.set_event_type(templ))
+    if attributes := config.get(CONF_ATTRIBUTES):
+        cg.add(var.init_attributes(len(attributes)))
+        for name, value in attributes.items():
+            # EventAttributeValue converts from whatever the value is, so a lambda keeps
+            # its own return type and the entity's declaration decides the wire type.
+            cg.add(
+                var.add_attribute(
+                    name, await cg.templatable(value, args, EventAttributeValue)
+                )
+            )
     return var
 
 

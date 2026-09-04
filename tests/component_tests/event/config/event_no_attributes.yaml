@@ -1,0 +1,22 @@
+esphome:
+  name: test-event-no-attributes
+
+host:
+
+api:
+
+logger:
+
+event:
+  - platform: template
+    name: Attributeless Event
+    id: attributeless_event
+    event_types:
+      - ping
+
+interval:
+  - interval: 1s
+    then:
+      - event.trigger:
+          id: attributeless_event
+          event_type: ping

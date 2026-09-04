@@ -18,3 +18,37 @@ event:
             // Log using %.*s format for StringRef
             ESP_LOGD("test", "Event type: %.*s", (int) event_type.size(), event_type.c_str());
           }
+
+  # An event entity whose attributes are declared once and carried per event.
+  - platform: template
+    name: Attributed Event
+    id: attributed_event
+    event_types:
+      - single_press
+      - multi_press_end
+      - long_press_end
+    attributes:
+      multi_press_count: int
+      duration: float
+      pressed: bool
+      label: string
+
+interval:
+  - interval: 60s
+    then:
+      - event.trigger:
+          id: attributed_event
+          event_type: multi_press_end
+          attributes:
+            multi_press_count: 3
+      - event.trigger:
+          id: attributed_event
+          event_type: long_press_end
+          attributes:
+            duration: !lambda "return 1.5f;"
+            pressed: true
+            label: held
+      # The attributes are optional per trigger: this one carries none.
+      - event.trigger:
+          id: attributed_event
+          event_type: single_press

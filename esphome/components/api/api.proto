@@ -2423,6 +2423,39 @@ message TimeCommandRequest {
 }
 
 // ==================== EVENT ====================
+// An event entity may carry attributes alongside its event type. Home Assistant's
+// EventEntity accepts a dict of them; its button event standard
+// (home-assistant/architecture#1377) defines one, multi_press_count, and devices
+// have their own beyond it. Naming those in this protocol would mean a new field
+// per attribute, so the names and the types are declared once, per entity, in the
+// listing, and each event carries values against that declaration -- the same
+// split ListEntitiesServicesArgument and ExecuteServiceArgument already use for
+// user-defined actions.
+enum EventAttributeType {
+  EVENT_ATTRIBUTE_TYPE_INT = 0;
+  EVENT_ATTRIBUTE_TYPE_FLOAT = 1;
+  EVENT_ATTRIBUTE_TYPE_BOOL = 2;
+  EVENT_ATTRIBUTE_TYPE_STRING = 3;
+}
+message ListEntitiesEventAttribute {
+  option (ifdef) = "USE_EVENT_ATTRIBUTES";
+  string name = 1;
+  EventAttributeType type = 2;
+}
+message EventAttribute {
+  option (ifdef) = "USE_EVENT_ATTRIBUTES";
+  // Position in ListEntitiesEventResponse.attributes. Sent rather than the name so
+  // that an event costs a byte per attribute instead of the name's length, and
+  // omitted when it is 0, which is the single-attribute case.
+  uint32 index = 1;
+  // Exactly one of these is read, chosen by the declared type. An attribute whose
+  // value is its type's zero encodes as an empty submessage, which is still
+  // present: absent is the attribute not appearing in the list at all.
+  sint32 int_ = 2;
+  float float_ = 3;
+  bool bool_ = 4;
+  string string_ = 5;
+}
 message ListEntitiesEventResponse {
   option (id) = 107;
   option (base_class) = "InfoResponseProtoMessage";
@@ -2441,6 +2474,8 @@ message ListEntitiesEventResponse {
 
   repeated string event_types = 9 [(container_pointer_no_template) = "FixedVector<const char *>"];
   uint32 device_id = 10 [(field_ifdef) = "USE_DEVICES"];
+  repeated ListEntitiesEventAttribute attributes = 11
+      [(field_ifdef) = "USE_EVENT_ATTRIBUTES", (fixed_array_with_length_define) = "ESPHOME_EVENT_ATTRIBUTE_COUNT"];
 }
 message EventResponse {
   option (id) = 108;
@@ -2451,6 +2486,11 @@ message EventResponse {
   fixed32 key = 1 [(force) = true];
   string event_type = 2;
   uint32 device_id = 3 [(field_ifdef) = "USE_DEVICES"];
+  // Sparse: an event sends only the attributes it has a value for, in any order.
+  // An empty list encodes to nothing, so an event without attributes is byte for
+  // byte what a device without this field sends.
+  repeated EventAttribute attributes = 4
+      [(field_ifdef) = "USE_EVENT_ATTRIBUTES", (fixed_array_with_length_define) = "ESPHOME_EVENT_ATTRIBUTE_COUNT"];
 }
 
 // ==================== VALVE ====================

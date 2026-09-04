@@ -1,0 +1,28 @@
+esphome:
+  name: api-event-attrs-identical
+
+host:
+
+api:
+  batch_delay: 0ms
+
+logger:
+
+event:
+  # Declares attributes, so USE_EVENT_ATTRIBUTES is on and EventResponse really
+  # does carry the repeated field. Nothing sets a value, which is the case that
+  # has to encode to the same bytes as a device that has never heard of it.
+  - platform: template
+    name: Action Button
+    id: action_button
+    event_types:
+      - press
+    attributes:
+      multi_press_count: int
+
+interval:
+  - interval: 100ms
+    then:
+      - event.trigger:
+          id: action_button
+          event_type: press

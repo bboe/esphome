@@ -775,6 +775,22 @@ template<> const char *proto_enum_to_string<enums::TextMode>(enums::TextMode val
   }
 }
 #endif
+#ifdef USE_EVENT_ATTRIBUTES
+template<> const char *proto_enum_to_string<enums::EventAttributeType>(enums::EventAttributeType value) {
+  switch (value) {
+    case enums::EVENT_ATTRIBUTE_TYPE_INT:
+      return ESPHOME_PSTR("EVENT_ATTRIBUTE_TYPE_INT");
+    case enums::EVENT_ATTRIBUTE_TYPE_FLOAT:
+      return ESPHOME_PSTR("EVENT_ATTRIBUTE_TYPE_FLOAT");
+    case enums::EVENT_ATTRIBUTE_TYPE_BOOL:
+      return ESPHOME_PSTR("EVENT_ATTRIBUTE_TYPE_BOOL");
+    case enums::EVENT_ATTRIBUTE_TYPE_STRING:
+      return ESPHOME_PSTR("EVENT_ATTRIBUTE_TYPE_STRING");
+    default:
+      return ESPHOME_PSTR("UNKNOWN");
+  }
+}
+#endif
 #ifdef USE_VALVE
 template<> const char *proto_enum_to_string<enums::ValveOperation>(enums::ValveOperation value) {
   switch (value) {
@@ -2509,6 +2525,23 @@ const char *TimeCommandRequest::dump_to(DumpBuffer &out) const {
   return out.c_str();
 }
 #endif
+#ifdef USE_EVENT_ATTRIBUTES
+const char *ListEntitiesEventAttribute::dump_to(DumpBuffer &out) const {
+  MessageDumpHelper helper(out, ESPHOME_PSTR("ListEntitiesEventAttribute"));
+  dump_field(out, ESPHOME_PSTR("name"), this->name);
+  dump_field(out, ESPHOME_PSTR("type"), static_cast<enums::EventAttributeType>(this->type));
+  return out.c_str();
+}
+const char *EventAttribute::dump_to(DumpBuffer &out) const {
+  MessageDumpHelper helper(out, ESPHOME_PSTR("EventAttribute"));
+  dump_field(out, ESPHOME_PSTR("index"), this->index);
+  dump_field(out, ESPHOME_PSTR("int_"), this->int_);
+  dump_field(out, ESPHOME_PSTR("float_"), this->float_);
+  dump_field(out, ESPHOME_PSTR("bool_"), this->bool_);
+  dump_field(out, ESPHOME_PSTR("string_"), this->string_);
+  return out.c_str();
+}
+#endif
 #ifdef USE_EVENT
 const char *ListEntitiesEventResponse::dump_to(DumpBuffer &out) const {
   MessageDumpHelper helper(out, ESPHOME_PSTR("ListEntitiesEventResponse"));
@@ -2527,6 +2560,13 @@ const char *ListEntitiesEventResponse::dump_to(DumpBuffer &out) const {
 #ifdef USE_DEVICES
   dump_field(out, ESPHOME_PSTR("device_id"), this->device_id);
 #endif
+#ifdef USE_EVENT_ATTRIBUTES
+  for (uint16_t i = 0; i < this->attributes_len; i++) {
+    out.append(4, ' ').append_p(ESPHOME_PSTR("attributes")).append(": ");
+    this->attributes[i].dump_to(out);
+    out.append("\n");
+  }
+#endif
   return out.c_str();
 }
 const char *EventResponse::dump_to(DumpBuffer &out) const {
@@ -2535,6 +2575,13 @@ const char *EventResponse::dump_to(DumpBuffer &out) const {
   dump_field(out, ESPHOME_PSTR("event_type"), this->event_type);
 #ifdef USE_DEVICES
   dump_field(out, ESPHOME_PSTR("device_id"), this->device_id);
+#endif
+#ifdef USE_EVENT_ATTRIBUTES
+  for (uint16_t i = 0; i < this->attributes_len; i++) {
+    out.append(4, ' ').append_p(ESPHOME_PSTR("attributes")).append(": ");
+    this->attributes[i].dump_to(out);
+    out.append("\n");
+  }
 #endif
   return out.c_str();
 }

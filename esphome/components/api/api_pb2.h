@@ -318,6 +318,14 @@ enum TextMode : uint32_t {
   TEXT_MODE_PASSWORD = 1,
 };
 #endif
+#ifdef USE_EVENT_ATTRIBUTES
+enum EventAttributeType : uint32_t {
+  EVENT_ATTRIBUTE_TYPE_INT = 0,
+  EVENT_ATTRIBUTE_TYPE_FLOAT = 1,
+  EVENT_ATTRIBUTE_TYPE_BOOL = 2,
+  EVENT_ATTRIBUTE_TYPE_STRING = 3,
+};
+#endif
 #ifdef USE_VALVE
 enum ValveOperation : uint32_t {
   VALVE_OPERATION_IDLE = 0,
@@ -2914,16 +2922,49 @@ class TimeCommandRequest final : public CommandProtoMessage {
   bool decode_varint(uint32_t field_id, proto_varint_value_t value) override;
 };
 #endif
+#ifdef USE_EVENT_ATTRIBUTES
+class ListEntitiesEventAttribute final : public ProtoMessage {
+ public:
+  StringRef name{};
+  enums::EventAttributeType type{};
+  uint8_t *encode(ProtoWriteBuffer &buffer PROTO_ENCODE_DEBUG_PARAM) const;
+  uint32_t calculate_size() const;
+#ifdef HAS_PROTO_MESSAGE_DUMP
+  const char *dump_to(DumpBuffer &out) const override;
+#endif
+
+ protected:
+};
+class EventAttribute final : public ProtoMessage {
+ public:
+  uint32_t index{0};
+  int32_t int_{0};
+  float float_{0.0f};
+  bool bool_{false};
+  StringRef string_{};
+  uint8_t *encode(ProtoWriteBuffer &buffer PROTO_ENCODE_DEBUG_PARAM) const;
+  uint32_t calculate_size() const;
+#ifdef HAS_PROTO_MESSAGE_DUMP
+  const char *dump_to(DumpBuffer &out) const override;
+#endif
+
+ protected:
+};
+#endif
 #ifdef USE_EVENT
 class ListEntitiesEventResponse final : public InfoResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 107;
-  static constexpr uint8_t ESTIMATED_SIZE = 67;
+  static constexpr uint8_t ESTIMATED_SIZE = 203;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("list_entities_event_response"); }
 #endif
   StringRef device_class{};
   const FixedVector<const char *> *event_types{};
+#ifdef USE_EVENT_ATTRIBUTES
+  std::array<ListEntitiesEventAttribute, ESPHOME_EVENT_ATTRIBUTE_COUNT> attributes{};
+  uint16_t attributes_len{0};
+#endif
   uint8_t *encode(ProtoWriteBuffer &buffer PROTO_ENCODE_DEBUG_PARAM) const;
   uint32_t calculate_size() const;
 #ifdef HAS_PROTO_MESSAGE_DUMP
@@ -2935,11 +2976,15 @@ class ListEntitiesEventResponse final : public InfoResponseProtoMessage {
 class EventResponse final : public StateResponseProtoMessage {
  public:
   static constexpr uint16_t MESSAGE_TYPE = 108;
-  static constexpr uint8_t ESTIMATED_SIZE = 18;
+  static constexpr uint8_t ESTIMATED_SIZE = 154;
 #ifdef HAS_PROTO_MESSAGE_DUMP
   const LogString *message_name() const override { return LOG_STR("event_response"); }
 #endif
   StringRef event_type{};
+#ifdef USE_EVENT_ATTRIBUTES
+  std::array<EventAttribute, ESPHOME_EVENT_ATTRIBUTE_COUNT> attributes{};
+  uint16_t attributes_len{0};
+#endif
   uint8_t *encode(ProtoWriteBuffer &buffer PROTO_ENCODE_DEBUG_PARAM) const;
   uint32_t calculate_size() const;
 #ifdef HAS_PROTO_MESSAGE_DUMP

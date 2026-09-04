@@ -1493,6 +1493,16 @@ void APIConnection::on_water_heater_command_request(const WaterHeaterCommandRequ
 #endif
 
 #ifdef USE_EVENT
+#ifdef USE_EVENT_ATTRIBUTES
+// The component's enum and the protocol's are two declarations of one thing, and the
+// entity's declared type is cast to the protocol's rather than mapped. Nothing else
+// would notice them drifting apart: the cast would still compile and Home Assistant
+// would read a float out of an int.
+static_assert(static_cast<uint32_t>(event::EventAttributeType::INT) == enums::EVENT_ATTRIBUTE_TYPE_INT);
+static_assert(static_cast<uint32_t>(event::EventAttributeType::FLOAT) == enums::EVENT_ATTRIBUTE_TYPE_FLOAT);
+static_assert(static_cast<uint32_t>(event::EventAttributeType::BOOL) == enums::EVENT_ATTRIBUTE_TYPE_BOOL);
+static_assert(static_cast<uint32_t>(event::EventAttributeType::STRING) == enums::EVENT_ATTRIBUTE_TYPE_STRING);
+#endif
 // Event is a special case - unlike other entities with simple state fields,
 // events store their state in a member accessed via obj->get_last_event_type()
 void APIConnection::send_event(event::Event *event) {
@@ -1503,6 +1513,30 @@ uint16_t APIConnection::try_send_event_response(event::Event *event, StringRef e
                                                 uint32_t remaining_size) {
   EventResponse resp;
   resp.event_type = event_type;
+#ifdef USE_EVENT_ATTRIBUTES
+  // Empty unless this call is inside the trigger that produced them, which is the case
+  // for the immediate send. A response that had to be deferred is encoded later and
+  // carries no attributes rather than a subsequent trigger's.
+  const event::EventAttributeInfo *declared = event->get_attributes();
+  for (const auto &state : event->get_attribute_states()) {
+    auto &attribute = resp.attributes[resp.attributes_len++];
+    attribute.index = state.index;
+    switch (declared[state.index].type) {
+      case event::EventAttributeType::INT:
+        attribute.int_ = state.int_value;
+        break;
+      case event::EventAttributeType::FLOAT:
+        attribute.float_ = state.float_value;
+        break;
+      case event::EventAttributeType::BOOL:
+        attribute.bool_ = state.bool_value;
+        break;
+      case event::EventAttributeType::STRING:
+        attribute.string_ = StringRef(state.string_value);
+        break;
+    }
+  }
+#endif
   return fill_and_encode_entity_state(event, resp, conn, remaining_size);
 }
 
@@ -1510,6 +1544,14 @@ uint16_t APIConnection::try_send_event_info(EntityBase *entity, APIConnection *c
   auto *event = static_cast<event::Event *>(entity);
   ListEntitiesEventResponse msg;
   msg.event_types = &event->get_event_types();
+#ifdef USE_EVENT_ATTRIBUTES
+  const event::EventAttributeInfo *declared = event->get_attributes();
+  msg.attributes_len = event->get_attribute_count();
+  for (uint16_t i = 0; i < msg.attributes_len; i++) {
+    msg.attributes[i].name = StringRef(declared[i].name);
+    msg.attributes[i].type = static_cast<enums::EventAttributeType>(declared[i].type);
+  }
+#endif
   return fill_and_encode_entity_info_with_device_class(event, msg, msg.device_class, conn, remaining_size);
 }
 #endif
